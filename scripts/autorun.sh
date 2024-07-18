@@ -18,3 +18,4 @@ python $SCRIPTS/decompress.py -m $MODEL -s $SCALER -r $REFFILE1 -o $TRAJFILE2 -c
 python $SCRIPTS/rmsd_frames.py -r1 $REFFILE1 -t1 $TRAJFILE1 -r2 $REFFILE2 -t2 $TRAJFILE2 -o $PREFIX/"$DEFFNM"_rmsd.txt
 
 rm rmsfit*
+rm -r lightning_logs
