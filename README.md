@@ -26,3 +26,11 @@ pip install dist/compressTraj-2024.0-py3-none-any.whl
 python -m "import compressTraj as ct; print(ct.__version__)
 ``````
 
+## Usage
+Example scripts are present in the scripts directory.
+The scripts can be used without any modification. 
+For automated data preparation, training of autoencoders
+and data compression please see autorun.sh in scripts.
+autorun.sh also contains a part to decompress. please comment or 
+uncomment the required parts for automated usage of the package
+along with the scripts.
