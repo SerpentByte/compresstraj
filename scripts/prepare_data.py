@@ -8,9 +8,7 @@ import sys
 import pickle
 import argparse
 import warnings
-sys.path.append("/data/wabdul/compressTraj/lib")
-from Classes import *
-from Helpers import *
+from compressTraj import *
 
 warnings.filterwarnings("ignore")
 
