@@ -20,6 +20,7 @@ Clone the repository and navigate into the project directory:
 git clone https://github.com/SerpentByte/compressTraj
 cd conmpressTraj
 conda create -n new_env python wheel setuptools -y
+conda activate new_env
 python setup.py sdist bdist_wheel
 pip install dist/compressTraj-2024.0-py3-none-any.whl
 python -m "import compressTraj as ct; print(ct.__version__)
