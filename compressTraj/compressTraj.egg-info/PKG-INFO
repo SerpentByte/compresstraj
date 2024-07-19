@@ -1,3 +1,22 @@
+Metadata-Version: 2.1
+Name: compressTraj
+Version: 2024.0
+Summary: Using AutoEncoders to compress molecular dynamics trajectories.
+Home-page: https://github.com/SerpentByte/compressTraj
+Author: SerpentByte
+Author-email: SerpentByte <wasim.abdul.1995@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/SerpentByte/compressTraj
+Keywords: molecular dynamics,MD,autoencoders
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: torch
+Requires-Dist: pytorch-lightning
+Requires-Dist: MDAnalysis
+Requires-Dist: tqdm
+Requires-Dist: scikit-learn
+
 # Compression of Molecular Dynamics trajectories using AutoEncoders
 
 This package provides a set of functions and classes to process molecular dynamics (MD) trajectories and implement autoencoders for dimensionality reduction and reconstruction of trajectory data. The package uses PyTorch, PyTorch Lightning, and MDAnalysis for these purposes.

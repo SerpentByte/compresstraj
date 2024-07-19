@@ -15,7 +15,7 @@ setup(
     description="Using AutoEncoders to compress molecular dynamics trajectories.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/my_project",  # Replace with your own URL
+    url="https://github.com/SerpentByte/compressTraj", 
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
