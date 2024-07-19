@@ -18,7 +18,7 @@ Clone the repository and navigate into the project directory:
 
 ```bash
 git clone https://github.com/SerpentByte/compressTraj
-cd conmpressTraj
+cd compressTraj
 conda create -n new_env python wheel setuptools -y
 conda activate new_env
 python setup.py sdist bdist_wheel
