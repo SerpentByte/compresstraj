@@ -1,6 +1,6 @@
-# Compression of Molecular Dynamics trajectories using AutoEncoders
+# Compression of biomolcular simulation trajectories using AutoEncoders
 
-This package provides a set of functions and classes to process molecular dynamics (MD) trajectories and implement autoencoders for dimensionality reduction and reconstruction of trajectory data. The package uses PyTorch, PyTorch Lightning, and MDAnalysis for these purposes.
+This package provides a set of functions and classes to process biomolecular simulation trajectories and implement autoencoders for dimensionality reduction and reconstruction of trajectory data. The package uses PyTorch, PyTorch Lightning, and MDAnalysis for these purposes.
 
 ## Dependencies
 - numpy
@@ -29,8 +29,6 @@ python -c "import compressTraj as ct; print(ct.__version__)"
 ## Usage
 Example scripts are present in the scripts directory.
 The scripts can be used without any modification. 
-For automated data preparation, training of autoencoders
-and data compression please see autorun.sh in scripts.
-autorun.sh also contains a part to decompress. please comment or 
-uncomment the required parts for automated usage of the package
-along with the scripts.
+Each script needs to be fed information using flags.
+Each script has its own documentation regarding what to 
+pass using the flags.
