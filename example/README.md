@@ -7,4 +7,4 @@ To decompress, use</br>
 This will create `temp_decompressed.xtc` and `temp_select.pdb`. The xtc file is the decompressed trajectory. Since the original trajectories
 are also fed, the default behaviour is to calculate the RMSD.
 However, in a real use case, those trajectories will not be available during decompression. The script will just decompress and will not try
-to calculate RMSD in such cases. The option `-t-` is hence optional. providing it switches on the RMSD calculation.
+to calculate RMSD in such cases. The flag `-t` is hence optional. providing it switches on the RMSD calculation.
