@@ -31,4 +31,6 @@ Example scripts are present in the scripts directory.
 The scripts can be used without any modification. 
 Each script needs to be fed information using flags.
 Each script has its own documentation regarding what to 
-pass using the flags.
+pass using the flags.</br>
+Use `python <script> -h` to get the documentation regarding the flags 
+for that script.
