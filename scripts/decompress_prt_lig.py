@@ -15,6 +15,7 @@ from MDAnalysis import Universe, Writer
 import pytorch_lightning as pl
 import argparse
 import shutil
+from sklearn.preprocessing import MinMaxScaler
 from glob import glob
 sys.path.append("/data/wabdul/compressTraj/lib")
 from Classes import *
@@ -81,7 +82,7 @@ with torch.no_grad():
 
 pos_prt = np.concatenate(pos_prt, axis=0)
 
-pos_prt = auto_reverse(pos_prt, scaler=scaler)
+pos_prt = scaler.inverse_transform(pos_prt)
 pos_prt = pos_prt.reshape((pos_prt.shape[0], pos_prt.shape[1]//3, 3))
 
 # ligand
@@ -102,7 +103,7 @@ with torch.no_grad():
 
 pos_lig = np.concatenate(pos_lig, axis=0)
 
-pos_lig = auto_reverse(pos_lig, scaler=scaler)
+pos_lig = scaler.inverse_transform(pos_lig)
 pos_lig = pos_lig.reshape((pos_lig.shape[0], pos_lig.shape[1]//3, 3))
 com_lig = np.load(ligand_com_path)
 
@@ -125,7 +126,7 @@ print(f"decompressed trajectory saved to {prefix}_decompressed.xtc.")
 if trajfile is None:
     exit(0)
 
-print("loading trajectories and aligning them for RMSD calculation.")
+print("loading trajectories for RMSD calculation.")
 
 ref = Universe(reffile)
 traj1 = Universe(reffile, trajfile)
@@ -136,12 +137,6 @@ with Writer("temp.pdb", "w") as w:
 traj2 = Universe("temp.pdb", prefix+"_decompressed.xtc")
 os.system("rm -rf temp.pdb")
 
-fit1 = align.AlignTraj(traj1, ref, select=f"{selection} or {ligand_selection}")
-fit1.run()
-
-fit2 = align.AlignTraj(traj2, ref, select=f"{selection} or {ligand_selection}")
-fit2.run()
-
 assert len(traj1.trajectory) == len(traj2.trajectory), "Trajectories must be of the same length."
 
 # calcaulating and saving RMSD
@@ -149,8 +144,8 @@ print("calculating RMSD between original and decompressed trajectory.")
 
 rmsd = []
 for t1, t2 in tqdm(zip(traj1.trajectory, traj2.trajectory), desc="Computing RMSD", total=len(traj1.trajectory)):
-    pos1 = traj1.select_atoms(f"{selection} or {ligand_selection}").positions - traj1.select_atoms(f"{selection} or {ligand_selection}").center_of_mass()
-    pos2 = traj2.select_atoms(f"{selection} or {ligand_selection}").positions - traj2.select_atoms(f"{selection} or {ligand_selection}").center_of_mass()
+    pos1 = traj1.select_atoms(f"{selection} or {ligand_selection}").positions - traj1.select_atoms(f"{selection} or {ligand_selection}").center_of_geometry()
+    pos2 = traj2.select_atoms(f"{selection} or {ligand_selection}").positions - traj2.select_atoms(f"{selection} or {ligand_selection}").center_of_geometry()
     rmsd.append(np.mean((pos1 - pos2)**2))
 
 rmsd = np.sqrt(rmsd)*0.1 # to nm

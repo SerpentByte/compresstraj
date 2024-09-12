@@ -1,9 +1,9 @@
 import numpy as np
-import torch
 import random
+import torch
 import os
 import MDAnalysis as mda
-from tqdm.auto import tqdm
+from tqdm.auto import tqdm, trange
 from MDAnalysis.analysis import align
 
 def set_seed(seed=42):
@@ -30,7 +30,7 @@ seed : the value of the seed. [default = 42]
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 
-def pool(reffile, trajfile, start=0, stop=-1, step=1, selection=None):
+def pool(reffile, trajfile, start=0, stop=-1, step=1, selection=None, ligand=None, flatten=True):
     r"""A function to pool all coordinates from starting frame to end frame, skipping the supplied number of steps
 for the selection provided.
 reffile : reference structure file. [pdb,gro]
@@ -40,22 +40,33 @@ stop : end frame [default = last frame]
 selection : atom selection [default = all]
 """
     if selection is None:
-        selection = "not name H*"
-        
+        selection = "not element H"
+
+    print("Loading trajectories.....")
     traj = mda.Universe(reffile, trajfile)
     ref = mda.Universe(reffile)
-
-    fit = align.AlignTraj(traj, ref, select="all")
-    fit.run()
     
     if stop == -1:
         stop = len(traj.trajectory)
 
-    pos = []
+    if ligand is None:
+        pos = []
+        for t in tqdm(traj.trajectory[start:stop:step], desc="processing trajectory"):
+            coords = traj.select_atoms(selection).positions - traj.select_atoms(selection).center_of_geometry()
+            pos.append(coords.flatten() if flatten else coords)
+        return np.array(pos, dtype="float32")
+
+    pos_prt, pos_lig, lig_com = [], [], []
     for t in tqdm(traj.trajectory[start:stop:step], desc="processing trajectory"):
-        coords = traj.select_atoms(selection).positions - traj.select_atoms(selection).center_of_mass()
-        pos.append(coords.flatten())
-    return np.array(pos, dtype="float32")
+        coords = traj.select_atoms(selection).positions - traj.select_atoms(selection).center_of_geometry()
+        pos_prt.append(coords.flatten() if flatten else coords)
+
+        coords = traj.select_atoms(ligand).positions - traj.select_atoms(ligand).center_of_geometry()
+        pos_lig.append(coords.flatten() if flatten else coords)
+        lig_com.append(traj.select_atoms(ligand).center_of_mass() - traj.select_atoms(selection).center_of_geometry())
+
+
+    return np.array(pos_prt, dtype="float32"), np.array(pos_lig, dtype="float32"), np.array(lig_com, dtype="float32")
 
 
 def zero_pad(pos):
@@ -67,25 +78,3 @@ frame : a single frame of a trajectory. it should be of the shape (N, 3).
     padding = int(nearest - N)
 
     return np.pad(pos, ((0, 0), (0, padding)), mode="constant"), padding
-
-
-def auto_process(reffile, trajfile, scaler):
-    r"""automatically process the trajectories.
-reffile : reference structure file. [pdb,gro]
-trajfile : trajectory file. [xtc,trr]
-scaler : the class used to scale the coordinates"""
-    pos = pool(reffile, trajfile)
-    if scaler:
-        pos = scaler.fit_transform(pos)
-
-    return pos
-
-
-def auto_reverse(pos, scaler):
-    r"""automatically obtain the real coordinates from scaled positions.
-pos : coodinates in (frames, N, 3) format.
-scaler : the class used to scale the coordinates"""
-    if scaler:
-        pos = scaler.inverse(pos)
-
-    return pos

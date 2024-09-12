@@ -14,6 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 from MDAnalysis import Universe, Writer
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 import pytorch_lightning as pl
 import argparse 
 import shutil
@@ -79,7 +80,7 @@ ae = DenseAutoEncoder(N=N, latent=latent)
 model = LightAutoEncoder(model=ae, learning_rate=3e-4)
 
 ## Initialize the Trainer with the logger
-trainer = pl.Trainer(max_epochs=int(args.epochs))
+trainer = pl.Trainer(max_epochs=int(args.epochs), accelerator='gpu', devices=1)
 
 ## Train the model
 trainer.fit(model, train_loader)

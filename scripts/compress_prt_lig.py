@@ -14,6 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 from MDAnalysis import Universe, Writer
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 import pytorch_lightning as pl
 import argparse 
 import shutil
@@ -63,14 +64,11 @@ pos_lig = pos_lig.astype("float32")
 
 # protein compression
 pos = pos_prt.copy()
-X_train, X_val, _, _ = train_test_split(pos, pos, test_size=0.1)
 
-X_train = scaler.fit_transform(X_train)
-X_val = scaler.transform(X_val)
+X_train = scaler.fit_transform(pos)
 
 train_loader = DataLoader(TrajLoader(X_train), shuffle=True, batch_size=256, num_workers=8)
-val_loader = DataLoader(TrajLoader(X_val), shuffle=False, batch_size=256, num_workers=8)
-del X_train, X_val
+del X_train
 
 pickle.dump(scaler, open(output_deffnm+"_prt_scaler.pkl", "wb"))
 print(f"""Trajectory for protein processed.
@@ -90,10 +88,10 @@ ae = DenseAutoEncoder(N=N, latent=latent)
 model = LightAutoEncoder(model=ae, learning_rate=3e-4)
 
 ### Initialize the Trainer with the logger
-trainer = pl.Trainer(max_epochs=int(args.epochs))
+trainer = pl.Trainer(max_epochs=int(args.epochs), accelerator='gpu', devices=1)
 
 ### Train the model
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, train_loader)
 
 ### saving model and losses
 torch.save(model, output_deffnm+"_prt_model.pt")
@@ -153,7 +151,7 @@ ae = DenseAutoEncoder(N=N, latent=latent)
 model = LightAutoEncoder(model=ae, learning_rate=3e-4)
 
 ### Initialize the Trainer with the logger
-trainer = pl.Trainer(max_epochs=int(args.epochs))
+trainer = pl.Trainer(max_epochs=int(args.epochs), accelerator='gpu', devices=1)
 
 ### Train the model
 trainer.fit(model, train_loader)

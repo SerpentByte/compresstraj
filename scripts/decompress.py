@@ -1,6 +1,3 @@
-import warnings
-warnings.filterwarnings("ignore")
-
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
@@ -15,11 +12,14 @@ from MDAnalysis import Universe, Writer
 from MDAnalysis.analysis import align
 import pytorch_lightning as pl
 import argparse
+import warnings
 import shutil
 from glob import glob
 sys.path.append("/data/wabdul/compressTraj/lib")
 from Classes import *
 from Helpers import *
+
+warnings.filterwarnings("ignore")
 
 set_seed()
 
@@ -66,7 +66,7 @@ with torch.no_grad():
 
 pos = np.concatenate(pos, axis=0)
 
-pos = auto_reverse(pos, scaler=scaler)
+pos = scaler.inverse_transform(pos)
 pos = pos.reshape((pos.shape[0], pos.shape[1]//3, 3))
 
 ref = mda.Universe(reffile, reffile)
@@ -90,12 +90,6 @@ with Writer("temp.pdb", "w") as w:
 traj2 = Universe("temp.pdb", prefix+"_decompressed.xtc")
 os.system("rm -rf temp.pdb")
 
-fit1 = align.AlignTraj(traj1, ref, select=selection)
-fit1.run()
-
-fit2 = align.AlignTraj(traj2, ref, select=selection)
-fit2.run()
-
 assert len(traj1.trajectory) == len(traj2.trajectory), "Trajectories must be of the same length."
 
 # calcaulating and saving RMSD
@@ -103,8 +97,8 @@ print("calculating RMSD between original and decompressed trajectory.")
 
 rmsd = []
 for t1, t2 in tqdm(zip(traj1.trajectory, traj2.trajectory), desc="Computing RMSD", total=len(traj1.trajectory)):
-    pos1 = traj1.select_atoms(selection).positions - traj1.select_atoms(selection).center_of_mass()
-    pos2 = traj2.select_atoms(selection).positions - traj2.select_atoms(selection).center_of_mass()
+    pos1 = traj1.select_atoms(selection).positions - traj1.select_atoms(selection).center_of_geometry()
+    pos2 = traj2.select_atoms(selection).positions - traj2.select_atoms(selection).center_of_geometry()
     rmsd.append(np.mean((pos1 - pos2)**2))
 
 rmsd = np.sqrt(rmsd)*0.1 # to nm
