@@ -17,7 +17,6 @@ import argparse
 import shutil
 from sklearn.preprocessing import MinMaxScaler
 from glob import glob
-sys.path.append("/data/wabdul/compressTraj/lib")
 from Classes import *
 from Helpers import *
 

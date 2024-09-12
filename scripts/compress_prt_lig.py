@@ -19,7 +19,6 @@ import pytorch_lightning as pl
 import argparse 
 import shutil
 from glob import glob
-sys.path.append("/data/wabdul/compressTraj/lib")
 from Classes import *
 from Helpers import *
 
