@@ -16,8 +16,8 @@ import warnings
 import shutil
 from glob import glob
 sys.path.append("/data/wabdul/compressTraj/lib")
-from Classes import *
-from Helpers import *
+from compressTraj.Classes import *
+from compressTraj.Helpers import *
 
 warnings.filterwarnings("ignore")
 

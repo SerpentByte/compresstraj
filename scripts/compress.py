@@ -19,8 +19,8 @@ import pytorch_lightning as pl
 import argparse 
 import shutil
 from glob import glob
-from Classes import *
-from Helpers import *
+from compressTraj.Classes import *
+from compressTraj.Helpers import *
 
 set_seed()
 

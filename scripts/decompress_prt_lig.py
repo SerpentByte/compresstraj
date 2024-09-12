@@ -18,8 +18,8 @@ import shutil
 from sklearn.preprocessing import MinMaxScaler
 from glob import glob
 sys.path.append("/data/wabdul/compressTraj/lib")
-from Classes import *
-from Helpers import *
+from compressTraj.Classes import *
+from compressTraj.Helpers import *
 
 set_seed()
 

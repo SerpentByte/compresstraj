@@ -1,6 +1,0 @@
-numpy
-torch
-pytorch-lightning
-MDAnalysis
-tqdm
-scikit-learn
