@@ -1,0 +1,55 @@
+Metadata-Version: 2.1
+Name: compressTraj
+Version: 2024.0
+Summary: Using AutoEncoders to compress molecular dynamics trajectories.
+Home-page: https://github.com/SerpentByte/compressTraj
+Author: SerpentByte
+Author-email: wasim.abdul.1995@gmail.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: torch
+Requires-Dist: pytorch-lightning
+Requires-Dist: MDAnalysis
+Requires-Dist: tqdm
+Requires-Dist: scikit-learn
+
+# Compression of biomolcular simulation trajectories using AutoEncoders
+
+This package provides a set of functions and classes to process biomolecular simulation trajectories and implement autoencoders for dimensionality reduction and reconstruction of trajectory data. The package uses PyTorch, PyTorch Lightning, and MDAnalysis for these purposes.
+
+## Dependencies
+- numpy
+- pickle
+- tqdm
+- cudatoolkit
+- scikit-learn
+- pytorch
+- pytorch-lightning
+- mdanalysis
+
+## Installation
+
+Clone the repository and navigate into the project directory:
+
+```bash
+git clone https://github.com/SerpentByte/compressTraj
+cd compressTraj
+conda create -n new_env python wheel setuptools -y
+conda activate new_env
+python setup.py sdist bdist_wheel
+pip install dist/compressTraj-2024.0-py3-none-any.whl
+python -c "import compressTraj as ct; print(ct.__version__)"
+``````
+
+## Usage
+Example scripts are present in the scripts directory.
+The scripts can be used without any modification. 
+Each script needs to be fed information using flags.
+Each script has its own documentation regarding what to 
+pass using the flags.</br>
+Use `python <script> -h` to get the documentation regarding the flags 
+for that script.

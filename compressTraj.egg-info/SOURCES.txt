@@ -1,0 +1,10 @@
+README.md
+setup.py
+compressTraj/Classes.py
+compressTraj/Helpers.py
+compressTraj/__init__.py
+compressTraj.egg-info/PKG-INFO
+compressTraj.egg-info/SOURCES.txt
+compressTraj.egg-info/dependency_links.txt
+compressTraj.egg-info/requires.txt
+compressTraj.egg-info/top_level.txt

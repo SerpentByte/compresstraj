@@ -67,3 +67,14 @@ selection : atom selection [default = all]
 
 
     return np.array(pos_prt, dtype="float32"), np.array(pos_lig, dtype="float32"), np.array(lig_com, dtype="float32")
+
+
+def zero_pad(pos):
+    r"""to zero pad number of particles to the nearest integer divisible by 8.
+frame : a single frame of a trajectory. it should be of the shape (N, 3).
+"""
+    N = pos.shape[1]
+    nearest = np.ceil(N/8)*8
+    padding = int(nearest - N)
+
+    return np.pad(pos, ((0, 0), (0, padding)), mode="constant"), padding
