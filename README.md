@@ -1,4 +1,4 @@
-# Compression of biomolcular simulation trajectories using AutoEncoders
+# Employing Artificial Neural Networks for Optimal Storage and Facile Sharing of Molecular Dynamics Simulation Trajectories
 
 This package provides a set of functions and classes to process biomolecular simulation trajectories and implement autoencoders for dimensionality reduction and reconstruction of trajectory data. The package uses PyTorch, PyTorch Lightning, and MDAnalysis for these purposes.
 
