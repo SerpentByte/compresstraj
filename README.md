@@ -33,6 +33,11 @@ cd compresstraj
 conda env create -f environment.yaml
 ```
 
+activate the environment using</br>
+```
+conda activate compresstraj
+```
+
 You can then install the package via `pip`:
 
 ```
