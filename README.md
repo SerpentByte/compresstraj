@@ -42,15 +42,21 @@ These also serve as usage examples.
 ### protein
 For compression:</br>
 Go into the path `examples/protein` and execute</br>
+
 ```python ../../scripts/compress.py -r hewl.pdb -t hewl.xtc -p hewl -e 100 -b 32 -c 20 -sel "protein" -o test```</br>
+
+
 For decompression:</br>
 ```python ../../scripts/decompress.py -m test/hewl_model.pt -s test/hewl_scaler.pkl -r test/hewl_select.pdb -c test/hewl_compressed.pkl -p hewl -sel "protein" -o test```
 
 ### protein-ligand
 For compression:</br>
 Go into the path `examples/protein_ligand` and execute</br>
+
 ```python ../../scripts/compress_prt_lig.py -r t4l_l99a_bnz.pdb -t t4l_l99a_bnz.xtc -p t4l_l99a_bnz -e 100 -c 20 -lig "resname BNZ" -sel "protein" -o test```</br>
+
 For decompression:</br>
+
 ```python ../../scripts/decompress_prt_lig.py -mp test/t4l_l99a_bnz_prt_model.pt -ml test/t4l_l99a_bnz_lig_model.pt -sp test/t4l_l99a_bnz_prt_scaler.pkl -sl test/t4l_l99a_bnz_lig_scaler.pkl -r test/t4l_l99a_bnz_select.pdb -cp test/t4l_l99a_bnz_prt_compressed.pkl -cl test/t4l_l99a_bnz_lig_compressed.pkl -lcom test/t4l_l99a_bnz_lig_com.npy -p t4l_l99a_bnz -sel "protein" -lig "resname BNZ" -o test```
 
 _for decompression, there is an option to feed the original trajectory using `-t` flag. If fed, the script will calculate framewise RMSDs and report the maximum and minimum RMSDs. This can be used to test reconstruction quality_
