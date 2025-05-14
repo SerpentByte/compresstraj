@@ -84,7 +84,7 @@ For decompression:</br>
 python ../../scripts/decompress_prt_lig.py -mp test/t4l_l99a_bnz_prt_model.pt -ml test/t4l_l99a_bnz_lig_model.pt -sp test/t4l_l99a_bnz_prt_scaler.pkl -sl test/t4l_l99a_bnz_lig_scaler.pkl -r test/t4l_l99a_bnz_select.pdb -cp test/t4l_l99a_bnz_prt_compressed.pkl -cl test/t4l_l99a_bnz_lig_compressed.pkl -lcom test/t4l_l99a_bnz_lig_com.npy -p t4l_l99a_bnz -sel "protein" -lig "resname BNZ" -o test
 ```
 
-### Notes
+#### Notes
 - _For decompression, the `-t` flag allows you to provide the original trajectory. If supplied, the script will compute framewise RMSDs and report both the maximum and minimum values. This can help assess reconstruction quality._
 - _The code is designed to minimize memory usage. If you encounter an out-of-memory (OOM) error on GPU or excessive RAM usage on CPU, try reducing the batch size to 1 using the `-b` flag. This may indicate that the model is too large for your system's memory._
 - _The recommended number of epochs to train a model is at least 1000 for actual usage._
