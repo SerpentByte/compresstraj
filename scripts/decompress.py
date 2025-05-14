@@ -10,14 +10,19 @@ from tqdm.auto import tqdm, trange
 from torch.utils.data import Dataset, DataLoader
 from MDAnalysis import Universe, Writer
 from MDAnalysis.analysis import align
+import MDAnalysis as mda
 import pytorch_lightning as pl
 import argparse
 import warnings
 import shutil
 from glob import glob
-sys.path.append("/data/wabdul/compressTraj/lib")
-from compressTraj.Classes import *
-from compressTraj.Helpers import *
+
+if "COMPRESSTRAJ_LIB" not in os.environ:
+    raise EnvironmentError("Please set COMPRESSTRAJ_LIB environment variable to the library path.")
+    
+sys.path.append(os.environ["COMPRESSTRAJ_LIB"])
+from classes import *
+from helpers import *
 
 warnings.filterwarnings("ignore")
 
@@ -34,6 +39,7 @@ parser.add_argument("-p", "--prefix", type=str, required=True, help="output file
 parser.add_argument('-sel', '--selection', type=str, default="not element H",
                     help="a list of selections. the training will treat each selection as a separated entity.")
 parser.add_argument('-gid', '--gpuID', type=str, help="select GPU to use [default=0]", default=0)
+parser.add_argument('-o', '--outdir', type=str, help='output directory', default=".")
 
 args = parser.parse_args()
 
@@ -45,39 +51,37 @@ compressed = args.compressed
 prefix = args.prefix
 selection = args.selection
 gpu_id = int(args.gpuID)
+outdir = args.outdir
 
 device = torch.device(f"cuda:{gpu_id}") if torch.cuda.is_available() else torch.device("cpu")
-print(f"Using GPU:{gpu_id}.")
+print(f"Using device: {device}.", flush=True)
 
-model = torch.load(modelpath).to(device)
-decoder = model.model.decoder
+ref = Universe(reffile)
+select = ref.select_atoms(selection)
+
+model = torch.load(modelpath, weights_only=False)
+decoder = model.decoder.to(device)
+decoder.eval()  
 del model
-decoder = decoder.to(device)
+
 latent = pickle.load(open(compressed, "rb"))
 scaler = pickle.load(open(scalerpath, "rb"))
 
-print("Decompressing.....")
-pos = []
-with torch.no_grad():
-    decoder.eval()
-    for lat in latent:
-        Pos = decoder(lat.to(device, dtype=torch.float32))
-        pos.append(Pos.cpu().numpy())
+print("Decompressing.....", flush=True)
 
-pos = np.concatenate(pos, axis=0)
+with mda.Writer(f"{outdir}/{prefix}_decompressed.xtc", "w") as w:
+    with torch.no_grad():
+        for lat in latent:
+            pos = decoder(lat.to(device, dtype=torch.float32)).cpu().numpy()
 
-pos = scaler.inverse_transform(pos)
-pos = pos.reshape((pos.shape[0], pos.shape[1]//3, 3))
+            pos = pos.reshape((pos.shape[0], pos.shape[1]//3, 3))
+            pos = scaler.inverse_transform(pos)
 
-ref = mda.Universe(reffile, reffile)
-select = ref.select_atoms(selection)
+            for p in pos:
+                select.positions = p
+                w.write(select)
 
-with mda.Writer(prefix+"_decompressed.xtc", "w") as w:
-    for p in pos:
-        select.positions = p
-        w.write(select)
-
-print(f"decompressed trajectory saved to {prefix}_decompressed.xtc.")
+print(f"decompressed trajectory saved to {outdir}/{prefix}_decompressed.xtc.", flush=True)
 
 if trajfile is None:
     exit(0)
@@ -87,28 +91,28 @@ traj1 = Universe(reffile, trajfile)
 
 with Writer("temp.pdb", "w") as w:
     w.write(ref.select_atoms(selection))
-traj2 = Universe("temp.pdb", prefix+"_decompressed.xtc")
-os.system("rm -rf temp.pdb")
+traj2 = Universe("temp.pdb", f"{outdir}/{prefix}_decompressed.xtc")
 
 assert len(traj1.trajectory) == len(traj2.trajectory), "Trajectories must be of the same length."
 
 # calcaulating and saving RMSD
-print("calculating RMSD between original and decompressed trajectory.")
+print("calculating RMSD between original and decompressed trajectory.", flush=True)
 
 rmsd = []
-for t1, t2 in tqdm(zip(traj1.trajectory, traj2.trajectory), desc="Computing RMSD", total=len(traj1.trajectory)):
+for t1, t2 in tqdm(zip(traj1.trajectory[:len(traj2.trajectory)], traj2.trajectory), desc="Computing RMSD", total=len(traj2.trajectory)):
     pos1 = traj1.select_atoms(selection).positions - traj1.select_atoms(selection).center_of_geometry()
     pos2 = traj2.select_atoms(selection).positions - traj2.select_atoms(selection).center_of_geometry()
     rmsd.append(np.mean((pos1 - pos2)**2))
 
 rmsd = np.sqrt(rmsd)*0.1 # to nm
 
-np.savetxt(prefix+"_rmsd.txt", rmsd, fmt="%.3f", header="RMSD in nm")
-print(f"RMSD values saved in {prefix}_rmsd.txt")
+np.savetxt(f"{outdir}/{prefix}_rmsd.txt", rmsd, fmt="%.3f", header="RMSD in nm")
+print(f"RMSD values saved in {outdir}/{prefix}_rmsd.txt", flush=True)
 
-print(f"RMSD = ({rmsd.min():.2f}, {rmsd.max():.2f}) nm")
+print(f"RMSD = ({rmsd.min():.2f}, {rmsd.max():.2f}) nm", flush=True)
 
-if len(glob("lightning_logs")):
-    shutil.rmtree("lightning_logs")
-if len(glob("*rmsfit*")):
-    os.system("rm *rmsfit*")
+if len(glob(f"lightning_logs")):
+    shutil.rmtree(f"lightning_logs")
+if len(glob(f"{outdir}/*rmsfit*")):
+    os.system(f"rm {outdir}/*rmsfit*")
+os.system("rm -rf temp.pdb")
