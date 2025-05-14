@@ -85,9 +85,10 @@ python ../../scripts/decompress_prt_lig.py -mp test/t4l_l99a_bnz_prt_model.pt -m
 ```
 
 #### Notes
-- _For decompression, the `-t` flag allows you to provide the original trajectory. If supplied, the script will compute framewise RMSDs and report both the maximum and minimum values. This can help assess reconstruction quality._
-- _The code is designed to minimize memory usage. If you encounter an out-of-memory (OOM) error on GPU or excessive RAM usage on CPU, try reducing the batch size to 1 using the `-b` flag. This may indicate that the model is too large for your system's memory._
-- _The recommended number of epochs to train a model is at least 1000 for actual usage._
+- For decompression, the `-t` flag allows you to provide the original trajectory. If supplied, the script will compute framewise RMSDs and report both the maximum and minimum values. This can help assess reconstruction quality.
+- The code is designed to minimize memory usage. If you encounter an out-of-memory (OOM) error on GPU or excessive RAM usage on CPU, try reducing the batch size to 1 using the `-b` flag. This may indicate that the model is too large for your system's memory.
+- The recommended number of epochs to train a model is at least 1000 for actual usage.
+- To view all the options one can pass to a script, use `python <script-path>.py -h`.
 
 ---
 
