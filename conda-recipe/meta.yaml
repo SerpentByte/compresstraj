@@ -1,0 +1,26 @@
+package:
+  name: compresstraj
+  version: "2.0.0"
+
+source:
+  path: .
+
+build:
+  noarch: python
+  script: "{{ PYTHON }} -m pip install ."
+
+requirements:
+  host:
+    - python >=3.8
+    - pip
+  run:
+    - numpy
+    - torch
+    - pytorch-lightning
+    - mdanalysis
+    - matplotlib
+    - tqdm
+
+about:
+  summary: "Molecular dynamics trajectory compression tool using autoencoders"
+
