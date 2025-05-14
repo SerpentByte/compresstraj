@@ -27,6 +27,9 @@ git clone git@github.com:SerpentByte/compresstraj.git
 Then create a new environment using the provided `environment.yaml` file:</br>
 ```
 cd compresstraj
+```
+
+```
 conda env create -f environment.yaml
 ```
 
