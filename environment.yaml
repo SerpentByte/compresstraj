@@ -10,4 +10,5 @@ dependencies:
   - pytorch
   - pytorch-lightning
   - mdanalysis
+  - natsort
   - python>=3.9

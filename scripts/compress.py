@@ -23,10 +23,6 @@ from natsort import natsorted
 from glob import glob
 import json
 
-if "COMPRESSTRAJ_LIB" not in os.environ:
-    raise EnvironmentError("Please set COMPRESSTRAJ_LIB environment variable to the library path.")
-
-sys.path.append(os.environ["COMPRESSTRAJ_LIB"])
 from classes import *
 from helpers import *
 
