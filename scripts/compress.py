@@ -160,3 +160,4 @@ if len(glob(f"{outdir}/*rmsfit*")):
     os.system(f"rm {outdir}/*rmsfit*")
 if len(glob(f"{outdir}/frame*.pkl")):
     os.system(f"rm {outdir}/frame*.pkl")
+os.system(f"rm .{prefix}*")

@@ -112,3 +112,4 @@ if len(glob(f"lightning_logs")):
 if len(glob(f"{outdir}/*rmsfit*")):
     os.system(f"rm {outdir}/*rmsfit*")
 os.system("rm -rf temp.pdb")
+os.system(f"rm .{prefix}*")
