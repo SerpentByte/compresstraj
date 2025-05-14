@@ -187,7 +187,7 @@ restart_ckpt_callback = ModelCheckpoint(
 accelerator="gpu" if torch.cuda.is_available() else "cpu"
 trainer = pl.Trainer(max_epochs=int(args.epochs),
                      accelerator=accelerator,
-                     devices=[gpu_id if accelerator == "gpu" else 0],
+                     devices=devices,
                      precision="32-true", enable_checkpointing=True, logger=None,
                      callbacks=[restart_ckpt_callback])
 
