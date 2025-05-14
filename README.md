@@ -1,4 +1,4 @@
-# compressTraj
+# compresstraj
 
 **Trajectory Compression Using Deep Autoencoders**
 
