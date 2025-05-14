@@ -4,7 +4,6 @@ channels:
   - defaults
 dependencies:
   - numpy
-  - pickle
   - tqdm
   - cudatoolkit
   - scikit-learn
