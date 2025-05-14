@@ -23,8 +23,8 @@ from natsort import natsorted
 from glob import glob
 import json
 
-from classes import *
-from helpers import *
+from compresstraj.classes import *
+from compresstraj.helpers import *
 
 # some stuff that effects the whole code
 torch.set_float32_matmul_precision('medium')

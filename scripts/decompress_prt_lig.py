@@ -18,9 +18,8 @@ import shutil
 from sklearn.preprocessing import MinMaxScaler
 from glob import glob
 
-sys.path.append(os.environ["COMPRESSTRAJ_LIB"])
-from classes import *
-from helpers import *
+from compresstraj.classes import *
+from compresstraj.helpers import *
 
 set_seed()
 

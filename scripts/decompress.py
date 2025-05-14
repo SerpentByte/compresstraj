@@ -17,8 +17,8 @@ import warnings
 import shutil
 from glob import glob
 
-from classes import *
-from helpers import *
+from compresstraj.classes import *
+from compresstraj.helpers import *
 
 warnings.filterwarnings("ignore")
 

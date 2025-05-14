@@ -22,8 +22,8 @@ import shutil
 from glob import glob
 import json
 
-from classes import *
-from helpers import *
+from compresstraj.classes import *
+from compresstraj.helpers import *
 
 torch.set_float32_matmul_precision('medium')
 set_seed()
