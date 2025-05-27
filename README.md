@@ -74,14 +74,26 @@ For compression:</br>
 Go into the path `examples/protein_ligand` and execute</br>
 
 ```
-python ../../scripts/compress_prt_lig.py -r t4l_l99a_bnz.pdb -t t4l_l99a_bnz.xtc -p t4l_l99a_bnz -e 100 -c 20 -lig "resname BNZ" -sel "protein" -o test
+# protein
+python ../../scripts/compress.py -r p450_cam.pdb -t p450_cam.xtc -p prt -e 100 -c 20 -sel "(not resname HEM) and (not resname CAM)" -o test
+# HEME subunit
+python ../../scripts/compress.py -r p450_cam.pdb -t p450_cam.xtc -p hem -e 100 -c 20 -sel "resname HEM" -o test
+# camphor
+python ../../scripts/compress.py -r p450_cam.pdb -t p450_cam.xtc -p cam -e 100 -c 20 -sel "resname CAM" -o test
 ```
 </br>
 
 For decompression:</br>
 
 ```
-python ../../scripts/decompress_prt_lig.py -mp test/t4l_l99a_bnz_prt_model.pt -ml test/t4l_l99a_bnz_lig_model.pt -sp test/t4l_l99a_bnz_prt_scaler.pkl -sl test/t4l_l99a_bnz_lig_scaler.pkl -r test/t4l_l99a_bnz_select.pdb -cp test/t4l_l99a_bnz_prt_compressed.pkl -cl test/t4l_l99a_bnz_lig_compressed.pkl -lcom test/t4l_l99a_bnz_lig_com.npy -p t4l_l99a_bnz -sel "protein" -lig "resname BNZ" -o test
+# protein
+python ../../scripts/decompress.py -m test/prt_model.pt -s test/prt_scaler.pkl -r test/prt_select.pdb -c test/prt_compressed.pkl -p prt -sel "(not resname HEM) and (not resname CAM)" -o test
+# HEME subunit
+python ../../scripts/decompress.py -m test/hem_model.pt -s test/hem_scaler.pkl -r test/hem_select.pdb -c test/hem_compressed.pkl -p hem -sel "resname HEM" -o test
+# camphor
+python ../../scripts/decompress.py -m test/cam_model.pt -s test/cam_scaler.pkl -r test/cam_select.pdb -c test/cam_compressed.pkl -p cam -sel "resname CAM" -o test
+# recomposition
+python ../../scripts/recompose.py -r p450_cam.pdb -c recompose.json -t p450_cam.xtc
 ```
 
 #### Notes

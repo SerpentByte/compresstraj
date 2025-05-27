@@ -1,0 +1,6 @@
+{
+    "selections":["not resname HEM and not resname CAM", "resname HEM", "resname CAM"],
+    "pdbs":["prt_select.pdb", "hem_select.pdb", "cam_select.pdb"],
+    "xtcs":["prt_decompressed.xtc", "hem_decompressed.xtc", "cam_decompressed.xtc"],
+    "prefix":"p450_cam"
+}

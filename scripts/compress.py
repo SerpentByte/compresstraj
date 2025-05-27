@@ -23,8 +23,12 @@ from natsort import natsorted
 from glob import glob
 import json
 
-from compresstraj.classes import *
-from compresstraj.helpers import *
+if "COMPRESSTRAJ_LIB" not in os.environ:
+    raise EnvironmentError("Please set COMPRESSTRAJ_LIB environment variable to the library path.")
+
+sys.path.append(os.environ["COMPRESSTRAJ_LIB"])
+from classes import *
+from helpers import *
 
 # some stuff that effects the whole code
 torch.set_float32_matmul_precision('medium')
@@ -42,12 +46,12 @@ parser.add_argument('-e', '--epochs', type=str, help='Number of epochs to train 
 parser.add_argument('-b', '--batch', type=str, help='batch size [default=128]', default=128)
 parser.add_argument('-l', '--latent', type=str, help='Number of latent dims', default=None)
 parser.add_argument('-c', '--compression', type=str, help='Extent of compression to achieve if latent dimension is not specified. [default = 20]', default=20)
-parser.add_argument('-sel', '--selection', type=str, default="not element H",
+parser.add_argument('-sel', '--selection', type=str, default="all",
                     help="a list of selections. the training will treat each selection as a separated entity.")
 parser.add_argument('-gid', '--gpuID', type=str, help="select GPU to use [default=0]", default=0)
 parser.add_argument('-ckpt', '--ckpt', type=str, help="checkpoint from where to resume training", default=None)
-parser.add_argument('--layers', '-layers', type=str, default="2048,1024",
-                    help="Comma-separated list of hidden layer sizes for the autoencoder, e.g., '2048,1024'")
+parser.add_argument('--layers', '-layers', type=str, default="4096,1024",
+                    help="Comma-separated list of hidden layer sizes for the autoencoder, e.g., '4096,1024'")
 parser.add_argument('-o', '--outdir', type=str, help='output directory', default=".")
 
 args = parser.parse_args()
@@ -75,6 +79,11 @@ scaler.fit(traj, selection=selection)
 indices = traj.select_atoms(selection).indices
 train_loader = DataLoader(TrajLoader(traj, indices, scaler), batch_size=int(args.batch), shuffle=True)
 
+cog = np.array([traj.select_atoms(selection).center_of_geometry() for t in traj.trajectory])
+
+np.save(f"{outdir}/{prefix}_cog.npy", cog)
+print(f"saved COG in {outdir}/{prefix}_cog.npy", flush=True)
+
 pickle.dump(scaler, open(f"{outdir}/{prefix}_scaler.pkl", "wb"))
 print(f"""scaler saved at {outdir}/{prefix}_scaler.pkl""", flush=True)
 
@@ -87,6 +96,8 @@ print(f"selected atom coordinates saved at {outdir}/{prefix}_select.pdb", flush=
 # check for checkpoint
 N = train_loader.dataset.get_N()
 latent = int(np.ceil(N/compression)) if latent is None else int(args.latent)
+if latent < 2:
+    latent = 2
 
 u = Universe(reffile)
 
@@ -99,23 +110,17 @@ model = LightAutoEncoder(model=ae, loss_fn=loss_fn, learning_rate=3e-4)
 
 restart_ckpt_callback = ModelCheckpoint(
     dirpath=outdir,
-    filename="restart",
+    filename=f"restart_{prefix}",
     every_n_epochs=10,            # <<< save every e epochs
     save_top_k=1,               # <<< save the last one
     save_weights_only=False,     # <<< save full model + optimizer
 )
 
-if torch.cuda.is_available():
-    accelerator = "gpu"
-    devices = [gpu_id]
-else:
-    accelerator = "cpu"
-    # on CPU you just need 1 device
-    devices = 1
 
+accelerator="gpu" if torch.cuda.is_available() else "cpu"
 trainer = pl.Trainer(max_epochs=int(args.epochs),
                      accelerator=accelerator,
-                     devices=devices,
+                     devices=[gpu_id if accelerator == "gpu" else 0],
                      precision="32-true", enable_checkpointing=True, logger=None,
                      callbacks=[restart_ckpt_callback])
     
@@ -152,18 +157,12 @@ pickle.dump(latent, open(f"{outdir}/{prefix}_compressed.pkl", "wb"))
 
 print(f"saved compressed data at {outdir}/{prefix}_compressed.pkl", flush=True)
 
-with open(f"{outdir}/config.json", "w") as f:
+with open(f"{outdir}/{prefix}_config.json", "w") as f:
     json.dump({"selection": selection}, f, indent=4)
 
-print(f"Saved selections to {outdir}/config.json", flush=True)
+print(f"Saved selections to {outdir}/{prefix}_config.json", flush=True)
 
-compression = 100*(1 - os.path.getsize(f"{outdir}/{prefix}_compressed.pkl")/os.path.getsize(trajfile))
-print(f"compression  = {compression:.2f} %", flush=True)
-
-if len(glob(f"lightning_logs")):
-    shutil.rmtree(f"lightning_logs")
 if len(glob(f"{outdir}/*rmsfit*")):
     os.system(f"rm {outdir}/*rmsfit*")
 if len(glob(f"{outdir}/frame*.pkl")):
     os.system(f"rm {outdir}/frame*.pkl")
-os.system(f"rm .{prefix}*")

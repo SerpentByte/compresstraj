@@ -17,8 +17,12 @@ import warnings
 import shutil
 from glob import glob
 
-from compresstraj.classes import *
-from compresstraj.helpers import *
+if "COMPRESSTRAJ_LIB" not in os.environ:
+    raise EnvironmentError("Please set COMPRESSTRAJ_LIB environment variable to the library path.")
+    
+sys.path.append(os.environ["COMPRESSTRAJ_LIB"])
+from classes import *
+from helpers import *
 
 warnings.filterwarnings("ignore")
 
@@ -32,10 +36,11 @@ parser.add_argument("-r", "--reffile", type=str, required=True, help="Path to th
 parser.add_argument('-t', '--trajfile', type=str, help='Path to the trajectory file 1 (xtc)')
 parser.add_argument("-c", "--compressed", type=str, required=True, help="Path to the compressed file.")
 parser.add_argument("-p", "--prefix", type=str, required=True, help="output file prefix.")
-parser.add_argument('-sel', '--selection', type=str, default="not element H",
+parser.add_argument('-sel', '--selection', type=str, default="all",
                     help="a list of selections. the training will treat each selection as a separated entity.")
 parser.add_argument('-gid', '--gpuID', type=str, help="select GPU to use [default=0]", default=0)
 parser.add_argument('-o', '--outdir', type=str, help='output directory', default=".")
+parser.add_argument('-cog', '--cog', type=str, default=None, help='center of geometry.')
 
 args = parser.parse_args()
 
@@ -48,6 +53,7 @@ prefix = args.prefix
 selection = args.selection
 gpu_id = int(args.gpuID)
 outdir = args.outdir
+cog_path = args.cog
 
 device = torch.device(f"cuda:{gpu_id}") if torch.cuda.is_available() else torch.device("cpu")
 print(f"Using device: {device}.", flush=True)
@@ -63,15 +69,23 @@ del model
 latent = pickle.load(open(compressed, "rb"))
 scaler = pickle.load(open(scalerpath, "rb"))
 
+if cog_path:
+    cog = np.load(cog_path)
+    batch_size = latent[0].shape[0]
+
 print("Decompressing.....", flush=True)
 
 with mda.Writer(f"{outdir}/{prefix}_decompressed.xtc", "w") as w:
     with torch.no_grad():
-        for lat in latent:
+        for frame_idx, lat in enumerate(latent):
             pos = decoder(lat.to(device, dtype=torch.float32)).cpu().numpy()
-
             pos = pos.reshape((pos.shape[0], pos.shape[1]//3, 3))
             pos = scaler.inverse_transform(pos)
+            pos -= pos.mean(axis=1, keepdims=True)
+
+            if cog_path:
+                cog_batch = cog[frame_idx*batch_size:(frame_idx + 1)*batch_size]
+                pos += np.expand_dims(cog_batch, axis=1)
 
             for p in pos:
                 select.positions = p
@@ -112,4 +126,3 @@ if len(glob(f"lightning_logs")):
 if len(glob(f"{outdir}/*rmsfit*")):
     os.system(f"rm {outdir}/*rmsfit*")
 os.system("rm -rf temp.pdb")
-os.system(f"rm .{prefix}*")

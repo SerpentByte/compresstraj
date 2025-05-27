@@ -74,12 +74,10 @@ class LightAutoEncoder(pl.LightningModule):
     def forward(self, x):
         return self.model(x)
 
-    def training_step(self, batch, batch_idx):
-        x = batch.float()
-        
-        x_hat = self.model(x)
+    def training_step(self, batch, batch_idx):        
+        x_hat = self.model(batch)
 
-        loss = self.loss_fn(x_hat, x)  # Assuming you want to use X as target",
+        loss = self.loss_fn(x_hat, batch)  # Assuming you want to use X as target",
 
         self.log('train_loss', loss, on_epoch=True)
         self.training_outputs.append(loss.detach().cpu().item())
