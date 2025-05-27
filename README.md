@@ -65,7 +65,7 @@ python ../../scripts/compress.py -r hewl.pdb -t hewl.xtc -p hewl -e 100 -b 32 -c
 For decompression:</br>
 
 ```
-python ../../scripts/decompress.py -m test/hewl_model.pt -s test/hewl_scaler.pkl -r test/hewl_select.pdb -c test/hewl_compressed.pkl -p hewl -sel "protein" -o test
+python ../../scripts/decompress.py -m test/hewl_model.pt -s test/hewl_scaler.pkl -r test/hewl_select.pdb -c test/hewl_compressed.pkl -cog test/hewl_cog.pkl -p hewl -sel "protein" -o test
 ```
 </br>
 
@@ -87,17 +87,18 @@ For decompression:</br>
 
 ```
 # protein
-python ../../scripts/decompress.py -m test/prt_model.pt -s test/prt_scaler.pkl -r test/prt_select.pdb -c test/prt_compressed.pkl -p prt -sel "(not resname HEM) and (not resname CAM)" -o test
+python ../../scripts/decompress.py -m test/prt_model.pt -s test/prt_scaler.pkl -r test/prt_select.pdb -c test/prt_compressed.pkl -p prt -sel "(not resname HEM) and (not resname CAM)" -cog test/prt_cog.pkl -o test
 # HEME subunit
-python ../../scripts/decompress.py -m test/hem_model.pt -s test/hem_scaler.pkl -r test/hem_select.pdb -c test/hem_compressed.pkl -p hem -sel "resname HEM" -o test
+python ../../scripts/decompress.py -m test/hem_model.pt -s test/hem_scaler.pkl -r test/hem_select.pdb -c test/hem_compressed.pkl -p hem -sel "resname HEM" -cog test/hem_cog.pkl -o test
 # camphor
-python ../../scripts/decompress.py -m test/cam_model.pt -s test/cam_scaler.pkl -r test/cam_select.pdb -c test/cam_compressed.pkl -p cam -sel "resname CAM" -o test
+python ../../scripts/decompress.py -m test/cam_model.pt -s test/cam_scaler.pkl -r test/cam_select.pdb -c test/cam_compressed.pkl -p cam -sel "resname CAM" -cog test/cam_cog.pkl -o test
 # recomposition
 python ../../scripts/recompose.py -r p450_cam.pdb -c recompose.json -t p450_cam.xtc
 ```
 
 #### Notes
 - For decompression, the `-t` flag allows you to provide the original trajectory. If supplied, the script will compute framewise RMSDs and report both the maximum and minimum values. This can help assess reconstruction quality.
+- A `-t` flag is also present for the `recompose.py` script which serves the same purpose. 
 - The code is designed to minimize memory usage. If you encounter an out-of-memory (OOM) error on GPU or excessive RAM usage on CPU, try reducing the batch size to 1 using the `-b` flag. This may indicate that the model is too large for your system's memory.
 - The recommended number of epochs to train a model is at least 1000 for actual usage.
 - To view all the options one can pass to a script, use `python <script-path>.py -h`.

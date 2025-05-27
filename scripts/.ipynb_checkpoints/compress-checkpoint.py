@@ -23,12 +23,8 @@ from natsort import natsorted
 from glob import glob
 import json
 
-if "COMPRESSTRAJ_LIB" not in os.environ:
-    raise EnvironmentError("Please set COMPRESSTRAJ_LIB environment variable to the library path.")
-
-sys.path.append(os.environ["COMPRESSTRAJ_LIB"])
-from classes import *
-from helpers import *
+from compresstraj.classes import *
+from compresstraj.helpers import *
 
 # some stuff that effects the whole code
 torch.set_float32_matmul_precision('medium')
@@ -48,7 +44,7 @@ parser.add_argument('-l', '--latent', type=str, help='Number of latent dims', de
 parser.add_argument('-c', '--compression', type=str, help='Extent of compression to achieve if latent dimension is not specified. [default = 20]', default=20)
 parser.add_argument('-sel', '--selection', type=str, default="all",
                     help="a list of selections. the training will treat each selection as a separated entity.")
-parser.add_argument('-gid', '--gpuID', type=str, help="select GPU to use [default=0]", default=0)
+parser.add_argument('-gid', '--gpuID', type=str, help="select GPU to use [default=0]", default="0")
 parser.add_argument('-ckpt', '--ckpt', type=str, help="checkpoint from where to resume training", default=None)
 parser.add_argument('--layers', '-layers', type=str, default="4096,1024",
                     help="Comma-separated list of hidden layer sizes for the autoencoder, e.g., '4096,1024'")
@@ -62,13 +58,13 @@ prefix = args.prefix
 latent = args.latent
 compression = int(args.compression)
 selection = args.selection
-gpu_id = int(args.gpuID)
+gpu_id = [int(idx) for idx in args.gpuID.split(",")]
 layers = list(map(int, args.layers.strip().split(",")))
 outdir = args.outdir
 
 os.makedirs(outdir, exist_ok=True)
 
-device = torch.device(f"cuda:{gpu_id}") if torch.cuda.is_available() else torch.device("cpu")
+device = torch.device(f"cuda:{'.'.join([str(idx) for idx in gpu_id])}") if torch.cuda.is_available() else torch.device("cpu")
 print(f"Using device: {device}.", flush=True)
 
 # processing trajectory
@@ -103,7 +99,6 @@ u = Universe(reffile)
 
 ae = DenseAutoEncoder(N=N, latent=latent, layers=layers)
 
-# loss_fn = CombinedCoordinateLoss(l_rmsd=1.0, l_dist=1.0, indices=u.select_atoms("element O").indices)
 loss_fn = RMSDLoss()
 
 model = LightAutoEncoder(model=ae, loss_fn=loss_fn, learning_rate=3e-4)
@@ -120,7 +115,7 @@ restart_ckpt_callback = ModelCheckpoint(
 accelerator="gpu" if torch.cuda.is_available() else "cpu"
 trainer = pl.Trainer(max_epochs=int(args.epochs),
                      accelerator=accelerator,
-                     devices=[gpu_id if accelerator == "gpu" else 0],
+                     devices=gpu_id if accelerator == "gpu" else [0],
                      precision="32-true", enable_checkpointing=True, logger=None,
                      callbacks=[restart_ckpt_callback])
     
@@ -161,8 +156,3 @@ with open(f"{outdir}/{prefix}_config.json", "w") as f:
     json.dump({"selection": selection}, f, indent=4)
 
 print(f"Saved selections to {outdir}/{prefix}_config.json", flush=True)
-
-if len(glob(f"{outdir}/*rmsfit*")):
-    os.system(f"rm {outdir}/*rmsfit*")
-if len(glob(f"{outdir}/frame*.pkl")):
-    os.system(f"rm {outdir}/frame*.pkl")
