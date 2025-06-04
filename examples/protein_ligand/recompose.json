@@ -1,6 +1,10 @@
 {
-    "selections":["not resname HEM and not resname CAM", "resname HEM", "resname CAM"],
-    "pdbs":["test/prt_select.pdb", "test/hem_select.pdb", "test/cam_select.pdb"],
-    "xtcs":["test/prt_decompressed.xtc", "test/hem_decompressed.xtc", "test/cam_decompressed.xtc"],
+    "selections":["(not resname HEM) and (not resname CAM)", "resname HEM", "resname CAM"],
+    "pdbs":["protein_ligand/test/prt_select.pdb",
+            "protein_ligand/test/hem_select.pdb",
+            "protein_ligand/test/cam_select.pdb"],
+    "xtcs":["protein_ligand/test/prt_decompressed.xtc",
+            "protein_ligand/test/hem_decompressed.xtc",
+            "protein_ligand/test/cam_decompressed.xtc"],
     "prefix":"p450_cam"
 }

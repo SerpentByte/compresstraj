@@ -16,7 +16,10 @@ However GPU-acceleration is not neccessary but recommended.
 - Upto 86% or more reeduction in file sizes with near-accurate reconstruction
 
 ---
+## Requirements
+- a conda distribution (anaconda/miniconda/miniforge etc.)
 
+---
 ## Installation
 First clone the repository:</br>
 
