@@ -100,7 +100,7 @@ python ../../scripts/recompose.py -r p450_cam.pdb -c recompose.json -t p450_cam.
 ```
 
 #### Notes
-- More details are present in the jupyter notebooks tutorial inside the `examples` folder.
+- See the Jupyter notebooks in the `examples` directory for more details.
 - For decompression, the `-t` flag allows you to provide the original trajectory. If supplied, the script will compute framewise RMSDs and report both the maximum and minimum values. This can help assess reconstruction quality.
 - A `-t` flag is also present for the `recompose.py` script which serves the same purpose. 
 - The code is designed to minimize memory usage. If you encounter an out-of-memory (OOM) error on GPU or excessive RAM usage on CPU, try reducing the batch size to 1 using the `-b` flag. This may indicate that the model is too large for your system's memory.
